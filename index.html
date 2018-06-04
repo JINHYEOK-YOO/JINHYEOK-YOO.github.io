@@ -1,0 +1,776 @@
+<html>
+<head>
+    <title>Calculator</title>
+    <style type="text/css">
+        body {
+            margin: 0px 0px 0px 0px;
+        }
+       
+        #calculator {
+            font-size: 0;
+            width: 360px;
+            height: 640px;
+            background-color: #000000;
+            padding: 0px;
+            margin: auto;
+        }
+       
+        #result {
+            width: 360px;
+            height: 140px;
+            padding: 6px 0px 0px 6px;
+            background-color: #000000;
+            border: 0px;
+            display: inline-flex;
+            justify-content: flex-start;
+            align-items: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            word-break: break-word;
+            white-space: pre-wrap;
+            font: 18pt "Cambria Math";
+            color: #ffffff;
+        }
+
+        #latex {
+            width: 352px;
+            height: 45px;
+            padding: 1px 0px 1px 6px;
+            background-color: #000000;
+            border: 0px;
+            display: inline-flex;
+            justify-content: flex-start;
+            align-items: center;
+            overflow: hidden;
+            white-space: pre-wrap;
+            font: 10pt "Cambria Math";
+            color: #ffffff;
+            border: 1px solid #505050;
+        }
+
+        #error {
+            width: 8px;
+            height: 8px;
+            border-radius: 100px;
+            position: relative;
+            top: 375px;
+            left: 300px;
+        }
+        
+        #plot-key {
+            width: 50px;
+            height: 20px;
+            top: 0px;
+            left: 308px;
+            position: relative;
+            background-color: #000000;
+            display: inline-flex;
+            vertical-align: middle;
+            justify-content: center;
+            align-items: center;
+            padding: 0px 0px 0px 0px;
+            cursor: pointer;
+            font: 10pt "Consolas";
+            color: #ffffff;
+            border: 1px solid #505050;
+            visibility: hidden;
+        }
+
+        #plot {
+            width: 358px;
+            height: 618px;
+            padding: 0px;
+            margin: auto;
+            display: none;
+        }
+
+        .key {
+            width: 68.5px;
+            height: 58px;
+            background-color: #404040;
+            display: inline-flex;
+            margin: 1.6px 1.6px 1.6px 1.6px;
+            vertical-align: middle;
+            justify-content: center;
+            align-items: center;
+            padding: 1.6px 0px 1.6px 0px;
+            cursor: pointer;
+            font: 22pt "Consolas";
+            color: #ffffff;
+        }
+
+        .side-key {
+            width: 67px;
+            height: 27px;
+            background-color: #000000;
+            display: inline-flex;
+            margin: 1.6px 1px 1.6px 2px;
+            vertical-align: middle;
+            justify-content: center;
+            align-items: center;
+            padding: 0px 0px 0px 0px;
+            cursor: pointer;
+            font: 10pt "Consolas";
+            color: #ffffff;
+            border: 1px solid #505050;
+        }
+        .function-key {
+            width: 56.7px;
+            background-color: #262626;
+            font: 18pt "Cambria Math"
+        }
+
+        .oper-key {
+            background-color: #D0D7F0;
+            color: #000000;
+        }
+       
+        .clear-key {
+            background-color: #21306A;
+            color: #ffffff;
+        }
+
+        .key:hover {
+            background-color: #ffffff;
+            color: #404040;
+        }
+    </style>
+ 
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js' type='text/javascript'></script>
+    <script src='lib/math.js' type='text/javascript'></script>
+    <script src='https://cdn.plot.ly/plotly-1.35.2.min.js' type='text/javascript'></script>
+    <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>  
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            "HTML-CSS": { scale: 75}
+        });
+    </script>
+
+    <script type="text/javascript"> 
+        function insert(str, index, value) {
+            return str.substr(0, index) + value + str.substr(index);
+        }
+        function deleteAt(str, index, length) {
+            return str.substr(0, index - length) + '' + str.substr(index);
+        }
+        $.fn.selectRange = function(start, end) {
+            return this.each(function() {
+                if(this.setSelectionRange) {
+                    this.focus();
+                    this.setSelectionRange(start, end);
+                }
+                else if(this.createTextRange) {
+                    var range = this.createTextRange();
+                    range.collapse(true);
+                    range.moveEnd('character', end);
+                    range.moveStart('character', start);
+                    range.select();
+                }
+            });
+        };
+        function draw(expression1, expression2) {
+            try {
+                if(expression1 != null)
+                {
+                    var expr1 = math.compile(expression1);
+                    var xValues1 = math.range(-1000, 1000, 0.1).toArray();
+                    var yValues1 = xValues1.map(function (x) {
+                        return expr1.eval({x: x});
+                    });
+                    var trace1 = {
+                        x: xValues1,
+                        y: yValues1,
+                        type: 'scatter',
+                        name: expression1
+                    };
+                }
+                if(expression2 != null)
+                {
+                    var expr2 = math.compile(expression2);
+                    var xValues2 = math.range(-1000, 1000, 0.1).toArray();
+                    var yValues2 = xValues2.map(function (x) {
+                        return expr2.eval({x: x});
+                    });
+                    var trace2 = {
+                        x: xValues2,
+                        y: yValues2,
+                        type: 'scatter',
+                        name: expression2
+                    };
+                }
+                if(expression1 != null && expression2 == null)
+                    var data = [trace1];
+                else if(expression1 == null && expression2 != null)
+                    var data = [trace2];
+                else if(expression1 != null && expression2 != null)
+                    var data = [trace1, trace2];
+                var layout = {
+                    width: 358,
+                    height: 618,
+                    xaxis: {range: [ -5, 5 ], color: '#fff'},
+                    yaxis: {range: [-10, 10], color: '#fff'},
+                    margin: {t:40, b:80, l:30, r:30},
+                    paper_bgcolor: '#000',
+                    plot_bgcolor: '#000',
+                    legend: {orientation: 'n', x: 0.4, y: -0.2, font: {color: '#fff'}}
+                };
+                Plotly.newPlot('plot', data, layout);
+            }
+            catch (err) {
+                console.error(err);
+                alert(err);
+            }
+        };
+        $(document).ready(function(){
+            var parser = math.parser();
+            var history = '0';
+            var inputValue = '0';
+            var resultValue = '0';
+            var cursor = 0;
+            var plotToggle = false;
+            var expression1 = null;
+            var expression2 = null;
+            $('#latex').html('$$' + math.parse(inputValue).toTex() + '$$');
+            $('#error').css('background-color','rgba(0,0,0,0)');
+            $('#error').css('color','rgba(0,0,0,0)');
+            $('#result').text(inputValue);
+            $('#result').focus();
+            $('#result').selectRange(cursor, cursor);
+            $('#plot-key').mouseup(function(e){
+                if(plotToggle == false)
+                {
+                    $(this).css('background-color','#ffffff');
+                    $(this).css('color','#404040');
+                    $('#result').css("display", "none");
+                    $('#latex').css("display", "none");
+                    $('#error').css("display", "none");
+                    $('.side-key').css("display", "none");
+                    $('.key').css("display", "none");
+                    $('#plot').css("display", "inline-flex");
+                    draw(expression1, expression2);
+                    plotToggle = true;
+                }
+                else
+                {
+                    $(this).css('background-color','#000000');
+                    $(this).css('color','#ffffff');
+                    $('#result').css("display", "inline-flex");
+                    $('#latex').css("display", "inline-flex");
+                    $('#error').css("display", "block");
+                    $('.side-key').css("display", "inline-flex");
+                    $('.key').css("display", "inline-flex");
+                    $('#plot').css("display", "none");
+                    plotToggle = false;
+                }
+            });
+            $('.side-key').mouseup(function(e){
+                $('#result').focus();
+                $('.side-key').css('background-color','#000000');
+                $('.side-key').css('color','#ffffff');
+                if($(this).text() == '산술')
+                {
+                    $(this).css('background-color','#ffffff');
+                    $(this).css('color','#404040');
+                    $('#f1').text('𝑥^2');
+                    $('#f2').text('𝑥^𝑦');
+                    $('#f3').text('exp');
+                    $('#f4').text('√𝑥');
+                    $('#f5').text('log');
+                    $('#f6').text('ln');
+                }
+                else if($(this).text() == '삼각')
+                {
+                    $(this).css('background-color','#ffffff');
+                    $(this).css('color','#404040');
+                    $('#f1').text('arc');
+                    $('#f2').text('sin');
+                    $('#f3').text('cos');
+                    $('#f4').text('tan');
+                    $('#f5').text('h');
+                    $('#f6').text('°');
+                }
+                else if($(this).text() == '선형')
+                {
+                    $(this).css('background-color','#ffffff');
+                    $(this).css('color','#404040');
+                    $('#f1').text('[');
+                    $('#f2').text(']');
+                    $('#f3').text(',');
+                    $('#f4').text(';');
+                    $('#f5').text('det');
+                    $('#f6').text('cross');
+                }
+                else if($(this).text() == '정의')
+                {
+                    $(this).css('background-color','#ffffff');
+                    $(this).css('color','#404040');
+                    $('#f1').text('x');
+                    $('#f2').text('y');
+                    $('#f3').text('z');
+                    $('#f4').text('f(x)');
+                    $('#f5').text('g(x)');
+                    $('#f6').text(':=');
+                }
+                else if($(this).text() == '비교')
+                {
+                    $(this).css('background-color','#ffffff');
+                    $(this).css('color','#404040');
+                    $('#f1').text('=');
+                    $('#f2').text('≠');
+                    $('#f3').text('<');
+                    $('#f4').text('≤');
+                    $('#f5').text('≥');
+                    $('#f6').text('>');
+                }
+            });
+            $('.key').each(function(index, key){       
+                $(this).mouseup(function(e){
+                    $('#result').focus();
+                    if(inputValue == '0')
+                    {
+                        inputValue = '';
+                        cursor = history.length;
+                    }
+                    if(history == '0')
+                    {
+                        history = '';
+                        cursor = 0;
+                    }
+                    if($(this).text() == 'EV')
+                    {
+                        try
+                        {
+                            resultValue = parser.eval(inputValue).toString();
+                            var tokens = resultValue.split(' ');
+                            if(tokens[0] == 'function')
+                            {
+                                var inputexpr = inputValue.split('=');
+                                if(inputexpr[0].charAt(0) == 'f')
+                                    expression1 = inputexpr[1];
+                                else if(inputexpr[0].charAt(0) == 'g')
+                                    expression2 = inputexpr[1];
+                                $('#plot-key').css('visibility', 'visible');
+                                resultValue = tokens[0];
+                            }
+                            history += inputValue + '\n= ' + resultValue + '\n-----------------------------------------\n';
+                            $('#result').text(history);
+                            cursor = history.length;                        
+                            inputValue = '0';
+                        }
+                        catch (e)
+                        {
+                            inputValue = '0';
+                            if(inputValue != 'function')
+                                $('#result').text(history + e);
+                        }
+                        $('#ac').text('AC');               
+                    }
+                    else if($(this).text() == 'AC')
+                    {
+                        inputValue = '0';
+                        expression1 = null;
+                        expression2 = null;
+                        $('#plot-key').css('visibility', 'hidden');
+                        history = '';
+                        $('#result').text(history);
+                        cursor = 0;
+                    }
+                    else if($(this).text() == 'C')
+                    {
+                        cursor = history.length;
+                        inputValue = '0';
+                        if(history == '')
+                        {
+                            cursor = 0;
+                            history = '0';
+                        }
+                        $('#result').text(history);
+                        $('#ac').text('AC');
+                        $('#result').selectRange(cursor, cursor);
+                    }
+                    else if($(this).text() == '←')
+                    {
+                        cursor = $('#result').prop('selectionStart');
+                        if(inputValue.length > 1)
+                        {
+                            if(inputValue[cursor - history.length - 1] == '(')
+                            {
+                                if(inputValue[cursor - history.length] == ')')
+                                {
+                                    inputValue = deleteAt(inputValue, cursor - history.length + 1, 2);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 1, cursor - 1);
+                                }
+                                else
+                                {
+                                    inputValue = deleteAt(inputValue, cursor - history.length, 1);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 1, cursor - 1);
+                                }
+                            }
+                            else if(inputValue[cursor - history.length - 1] == '[')
+                            {
+                                if(inputValue[cursor - history.length] == ']')
+                                {
+                                    inputValue = deleteAt(inputValue, cursor - history.length + 1, 2);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 1, cursor - 1);
+                                }
+                                else
+                                {
+                                    inputValue = deleteAt(inputValue, cursor - history.length, 1);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 1, cursor - 1);
+                                }
+                            }
+                            else if(inputValue[cursor - history.length - 1] == 'n'
+                                || inputValue[cursor - history.length - 1] == 'g'
+                                || inputValue[cursor - history.length - 1] == 'p')
+                            {
+                                    inputValue = deleteAt(inputValue, cursor - history.length, 3);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 3, cursor - 3);
+                            }
+                            else if(inputValue[cursor - history.length - 1] == 'i')
+                            {
+                                if(inputValue[cursor - history.length - 2] == 'p')
+                                {
+                                    inputValue = deleteAt(inputValue, cursor - history.length, 2);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 2, cursor - 2);
+                                }
+                                else
+                                {
+                                    inputValue = deleteAt(inputValue, cursor - history.length, 1);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 1, cursor - 1);
+                                }
+                            }
+                            else if(inputValue[cursor - history.length - 1] == 't')
+                            {
+                                if(inputValue[cursor - history.length - 2] == 'r')
+                                {
+                                    inputValue = deleteAt(inputValue, cursor - history.length, 4);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 4, cursor - 4);
+                                }
+                                else if(inputValue[cursor - history.length - 2] == 'e')
+                                {
+                                    inputValue = deleteAt(inputValue, cursor - history.length, 3);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 3, cursor - 3);
+                                }
+                            }
+                            else if(inputValue[cursor - history.length - 1] == 's')
+                            {
+                                if(inputValue[cursor - history.length - 2] == 'o')
+                                {
+                                    inputValue = deleteAt(inputValue, cursor - history.length, 3);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 3, cursor - 3);
+                                }
+                                else if(inputValue[cursor - history.length - 2] == 's')
+                                {
+                                    inputValue = deleteAt(inputValue, cursor - history.length, 5);
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor - 5, cursor - 5);
+                                }
+                            }
+                            else
+                            {
+                                inputValue = deleteAt(inputValue, cursor - history.length, 1);
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor - 1, cursor - 1);
+                            }
+                            if(inputValue.length == 0)
+                            {
+                                inputValue = '0';
+                                cursor = history.length;
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor, cursor);
+                            }
+                        }
+                        else
+                        {
+                            inputValue = '0';
+                            cursor = history.length;
+                            $('#result').text(history + inputValue);
+                            $('#result').selectRange(cursor, cursor);
+                        }
+                    }
+                    else
+                    {
+                        cursor = $('#result').prop('selectionStart');
+                        switch($(this).text())
+                        {
+                            case 'f(x)':
+                                inputValue = insert(inputValue, cursor - history.length, 'f()');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 2, cursor + 2);
+                                break;
+                            case 'g(x)':
+                                inputValue = insert(inputValue, cursor - history.length, 'g()');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 2, cursor + 2);
+                                break;
+                            case ':=':
+                                inputValue = insert(inputValue, cursor - history.length, '=');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case '=':
+                                inputValue = insert(inputValue, cursor - history.length, '==');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 2, cursor + 2);
+                                break;
+                            case '≠':
+                                inputValue = insert(inputValue, cursor - history.length, '!=');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 2, cursor + 2);
+                                break;
+                            case '≤':
+                                inputValue = insert(inputValue, cursor - history.length, '<=');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 2, cursor + 2);
+                                break;
+                            case '≥':
+                                inputValue = insert(inputValue, cursor - history.length, '>=');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 2, cursor + 2);
+                                break;
+                            case 'arc':
+                                inputValue = insert(inputValue, cursor - history.length, 'a');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case 'sin':
+                                inputValue = insert(inputValue, cursor - history.length, 'sin()');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 4, cursor + 4);
+                                break;
+                            case 'cos':
+                                inputValue = insert(inputValue, cursor - history.length, 'cos()');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 4, cursor + 4);
+                                break;
+                            case 'tan':
+                                inputValue = insert(inputValue, cursor - history.length, 'tan()');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 4, cursor + 4);
+                                break;
+                            case 'h':
+                                if(inputValue[cursor - history.length - 1] == '(')
+                                {
+                                    inputValue = insert(inputValue, cursor - 1 - history.length, 'h');
+                                    $('#result').text(history + inputValue);
+                                    $('#result').selectRange(cursor + 1, cursor + 1);
+                                }
+                                break;
+                            case '𝑦/𝑥':
+                                inputValue = insert(inputValue, cursor - history.length, '(/)');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case '𝑛!':
+                                inputValue = insert(inputValue, cursor - history.length, '!');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case '𝑥^2':
+                                inputValue = insert(inputValue, cursor - history.length, '^2');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 2, cursor + 2);
+                                break;
+                            case '𝑥^𝑦':
+                                inputValue = insert(inputValue, cursor - history.length, '^()');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 2, cursor + 2);
+                                break;
+                            case '√𝑥':
+                                inputValue = insert(inputValue, cursor - history.length, 'sqrt()');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 5, cursor + 5);
+                                break;
+                            case 'π':
+                                inputValue = insert(inputValue, cursor - history.length, '(pi)');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 4, cursor + 4);
+                                break;
+                            case '𝑖':
+                                inputValue = insert(inputValue, cursor - history.length, 'i');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case '𝑒':
+                                inputValue = insert(inputValue, cursor - history.length, '(e)');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 3, cursor + 3);
+                                break;
+                            case 'log':
+                                inputValue = insert(inputValue, cursor - history.length, 'log(,)');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 4, cursor + 4);
+                                break;
+                            case 'ln':
+                                inputValue = insert(inputValue, cursor - history.length, 'log(,e)');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 4, cursor + 4);
+                                break;
+                            case '(':
+                                inputValue = insert(inputValue, cursor - history.length, '()');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case '°':
+                                inputValue = insert(inputValue, cursor - history.length, 'deg');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 3, cursor + 3);
+                                break;
+                            case '+':
+                                if(inputValue == '')
+                                {
+                                    inputValue += resultValue + '+';
+                                    $('#result').text(history + inputValue);
+                                    break;
+                                }
+                                inputValue = insert(inputValue, cursor - history.length, '+');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case '-':
+                                if(inputValue == '')
+                                {
+                                    inputValue += resultValue + '-';
+                                    $('#result').text(history + inputValue);
+                                    break;
+                                }
+                                inputValue = insert(inputValue, cursor - history.length, '-');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case '×':
+                                if(inputValue == '')
+                                {
+                                    inputValue += resultValue + '*';
+                                    $('#result').text(history + inputValue);
+                                    break;
+                                }
+                                inputValue = insert(inputValue, cursor - history.length, '*');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case '÷':
+                                if(inputValue == '')
+                                {
+                                    inputValue += resultValue + '/';
+                                    $('#result').text(history + inputValue);
+                                    break;
+                                }
+                                inputValue = insert(inputValue, cursor - history.length, '/');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case 'det':
+                                inputValue = insert(inputValue, cursor - history.length, 'det()');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 4, cursor + 4);
+                                break;
+                            case 'exp':
+                                inputValue = insert(inputValue, cursor - history.length, 'exp()');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 4, cursor + 4);
+                                break;
+                            case 'cross':
+                                inputValue = insert(inputValue, cursor - history.length, 'cross([],[])');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 7, cursor + 7);
+                                break;
+                            case 'mod':
+                                inputValue = insert(inputValue, cursor - history.length, '%');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            case '[':
+                                inputValue = insert(inputValue, cursor - history.length, '[]');
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                            default:
+                                inputValue = insert(inputValue, cursor - history.length, $(this).text());
+                                $('#result').text(history + inputValue);
+                                $('#result').selectRange(cursor + 1, cursor + 1);
+                                break;
+                        }
+                        if(inputValue != '')
+                            $('#ac').text('C');
+                    }
+                    $('#result').scrollTop($('#result').prop('scrollHeight'));
+                    try
+                    {
+                        parser.eval(inputValue).toString();
+                        $('#error').css('background-color','rgba(0,0,0,0)');
+                    }
+                    catch (e)
+                    {
+                        $('#error').css('background-color','rgba(195,38,12,1)');
+                    }  
+                    e.preventDefault();
+                    var node = math.parse(inputValue);
+                    var latex = node.toTex({parenthesis: 'keep', implicit: 'hide'});
+                    var elem = MathJax.Hub.getAllJax('latex')[0];
+                    MathJax.Hub.Queue(['Text', elem, latex]);                   
+                })   
+            })
+        })
+    </script>
+</head>
+ 
+<body>
+    <div id="calculator">
+        <span id="plot-key">plot</span>
+        <div id="plot"></div> 
+        <textarea id="result"></textarea>
+        <div id="latex"></div>
+        <div id="error"></div>
+        <span class="side-key", style="background-color: #ffffff; color: #404040">산술</span>
+        <span class="side-key">삼각</span>
+        <span class="side-key">선형</span>
+        <span class="side-key">정의</span>
+        <span class="side-key">비교</span>
+        <span class="key function-key", id='f1'>𝑥^2</span>
+        <span class="key function-key", id='f2'>𝑥^𝑦</span>
+        <span class="key function-key", id='f3'>exp</span>
+        <span class="key function-key", id='f4'>√𝑥</span>
+        <span class="key function-key", id='f5'>log</span>
+        <span class="key function-key", id='f6'>ln</span>
+        <span class="key function-key">(</span>
+        <span class="key function-key">)</span>
+        <span class="key function-key">π</span>
+        <span class="key function-key">𝑖</span>
+        <span class="key function-key">𝑒</span>
+        <span class="key function-key">𝑛!</span>
+        <span class="key">7</span>
+        <span class="key">8</span>
+        <span class="key">9</span>
+        <span class="key clear-key">←</span>
+        <span class="key clear-key", id="ac">AC</span>
+        <span class="key">4</span>
+        <span class="key">5</span>
+        <span class="key">6</span>
+        <span class="key oper-key">×</span>
+        <span class="key oper-key">÷</span>
+        <span class="key">1</span>
+        <span class="key">2</span>
+        <span class="key">3</span>
+        <span class="key oper-key">+</span>
+        <span class="key oper-key">-</span>
+        <span class="key">0</span>
+        <span class="key">.</span>
+        <span class="key">𝑦/𝑥</span>
+        <span class="key oper-key">mod</span>
+        <span class="key oper-key">EV</span>
+    </div>                   
+</body>
+</html>
