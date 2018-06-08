@@ -8,17 +8,17 @@
        
         #calculator {
             font-size: 0;
-            width: 360px;
-            height: 640px;
+            width: 1080px;
+            height: 1920px;
             background-color: #000000;
             padding: 0px;
             margin: auto;
         }
        
         #result {
-            width: 360px;
-            height: 140px;
-            padding: 6px 0px 0px 6px;
+            width: 1080px;
+            height: 420px;
+            padding: 18px 0px 0px 18px;
             background-color: #000000;
             border: 0px;
             display: inline-flex;
@@ -28,14 +28,15 @@
             overflow-y: auto;
             word-break: break-word;
             white-space: pre-wrap;
-            font: 18pt "Cambria Math";
+            font: 54pt "Cambria Math";
             color: #ffffff;
+            resize: none;
         }
 
         #latex {
-            width: 352px;
-            height: 45px;
-            padding: 1px 0px 1px 6px;
+            width: 1056px;
+            height: 135px;
+            padding: 3px 0px 3px 18px;
             background-color: #000000;
             border: 0px;
             display: inline-flex;
@@ -43,25 +44,25 @@
             align-items: center;
             overflow: hidden;
             white-space: pre-wrap;
-            font: 10pt "Cambria Math";
+            font: 30pt "Cambria Math";
             color: #ffffff;
             border: 1px solid #505050;
         }
 
         #error {
-            width: 8px;
-            height: 8px;
+            width: 24px;
+            height: 24px;
             border-radius: 100px;
             position: relative;
-            top: 375px;
-            left: 300px;
+            top: 1125px;
+            left: 900px;
         }
         
         #plot-key {
-            width: 50px;
-            height: 20px;
+            width: 150px;
+            height: 60px;
             top: 0px;
-            left: 308px;
+            left: 924px;
             position: relative;
             background-color: #000000;
             display: inline-flex;
@@ -70,54 +71,54 @@
             align-items: center;
             padding: 0px 0px 0px 0px;
             cursor: pointer;
-            font: 10pt "Consolas";
+            font: 30pt "Consolas";
             color: #ffffff;
             border: 1px solid #505050;
             visibility: hidden;
         }
 
         #plot {
-            width: 358px;
-            height: 618px;
+            width: 1074px;
+            height: 1854px;
             padding: 0px;
             margin: auto;
             display: none;
         }
 
         .key {
-            width: 68.5px;
-            height: 58px;
+            width: 205.5px;
+            height: 174px;
             background-color: #404040;
             display: inline-flex;
-            margin: 1.6px 1.6px 1.6px 1.6px;
+            margin: 4.8px 4.8px 4.8px 4.8px;
             vertical-align: middle;
             justify-content: center;
             align-items: center;
-            padding: 1.6px 0px 1.6px 0px;
+            padding: 4.8px 0px 4.8px 0px;
             cursor: pointer;
-            font: 22pt "Consolas";
+            font: 66pt "Consolas";
             color: #ffffff;
         }
 
         .side-key {
-            width: 67px;
-            height: 27px;
+            width: 204px;
+            height: 81px;
             background-color: #000000;
             display: inline-flex;
-            margin: 1.6px 1px 1.6px 2px;
+            margin: 4.8px 3px 4.8px 6px;
             vertical-align: middle;
             justify-content: center;
             align-items: center;
             padding: 0px 0px 0px 0px;
             cursor: pointer;
-            font: 10pt "Consolas";
+            font: 30pt "Consolas";
             color: #ffffff;
             border: 1px solid #505050;
         }
         .function-key {
-            width: 56.7px;
+            width: 170.1px;
             background-color: #262626;
-            font: 18pt "Cambria Math"
+            font: 54pt "Cambria Math"
         }
 
         .oper-key {
@@ -207,11 +208,11 @@
                 else if(expression1 != null && expression2 != null)
                     var data = [trace1, trace2];
                 var layout = {
-                    width: 358,
-                    height: 618,
+                    width: 1074,
+                    height: 1854,
                     xaxis: {range: [ -5, 5 ], color: '#fff'},
                     yaxis: {range: [-10, 10], color: '#fff'},
-                    margin: {t:40, b:80, l:30, r:30},
+                    margin: {t:120, b:240, l:90, r:90},
                     paper_bgcolor: '#000',
                     plot_bgcolor: '#000',
                     legend: {orientation: 'n', x: 0.4, y: -0.2, font: {color: '#fff'}}
